@@ -1,0 +1,37 @@
+{
+  "name": "celebratehub-backend",
+  "version": "1.0.0",
+  "description": "Backend API server for CelebrateHub milestone tracking system",
+  "main": "server.js",
+  "scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js",
+    "server": "node server.js"
+  },
+  "dependencies": {
+    "@dataconnect/generated": "file:../src/dataconnect-generated",
+    "axios": "^1.6.2",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.5",
+    "firebase": "^12.3.0",
+    "firebase-admin": "^11.11.0",
+    "helmet": "^7.1.0",
+    "openai": "^4.20.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "keywords": [
+    "github",
+    "milestones",
+    "celebration",
+    "ai",
+    "webhooks",
+    "api"
+  ],
+  "author": "CelebrateHub Team",
+  "license": "MIT"
+}

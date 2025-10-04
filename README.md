@@ -1,261 +1,83 @@
-# 🎉 CelebrateHub
+# CelebrateHub
 
-A modern web application that celebrates GitHub milestones with AI-powered posts and real-time tracking.
+A milestone celebration system for GitHub repositories with AI-powered content generation and interactive backgrounds.
 
-![CelebrateHub](https://img.shields.io/badge/React-18.2.0-blue) ![Firebase](https://img.shields.io/badge/Firebase-12.3.0-orange) ![Node.js](https://img.shields.io/badge/Node.js-18+-green)
+## Project Structure
 
-## ✨ Features
-
-- 🔐 **GitHub Authentication** - Secure login with GitHub OAuth
-- 📊 **Real-time Milestone Tracking** - Track PRs, stars, issues, and commits
-- 🎨 **Beautiful UI** - Modern, responsive design with dark/light themes
-- 🤖 **AI-Powered Posts** - Generate celebratory posts for milestones
-- 📱 **Mobile Responsive** - Works perfectly on all devices
-- ⚡ **Real-time Updates** - Live dashboard with Firestore integration
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-- **Node.js** 18+ ([Download](https://nodejs.org/))
-- **npm** (comes with Node.js)
-- **Git** ([Download](https://git-scm.com/))
-
-### 1. Clone the Repository
-
-```bash
-git clone <your-repo-url>
-cd milestone-web-app
-```
-
-### 2. Run Setup Script
-
-```bash
-# Make setup script executable
-chmod +x setup.sh
-
-# Run the setup script
-./setup.sh
-```
-
-This will:
-- ✅ Check Node.js and npm installation
-- ✅ Install all dependencies (root + client)
-- ✅ Create environment files with placeholders
-- ✅ Check port availability
-- ✅ Create a start script
-
-### 3. Configure Firebase
-
-1. **Create Firebase Project**
-   - Go to [Firebase Console](https://console.firebase.google.com)
-   - Create a new project named `celebratehub-mvp`
-
-2. **Enable Services**
-   - **Authentication** → Sign-in method → Enable GitHub
-   - **Firestore Database** → Create database in test mode
-
-3. **Get Firebase Config**
-   - Project Settings → General → Your apps → Add Web app
-   - Copy the Firebase config object
-
-4. **Create Service Account**
-   - Project Settings → Service accounts → Generate new private key
-   - Download the JSON file
-
-5. **Update Environment Files**
-
-   **Update `.env` (root directory):**
-   ```env
-   FIREBASE_PROJECT_ID=your-actual-project-id
-   FIREBASE_PRIVATE_KEY_ID=from-service-account-json
-   FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nyour-actual-private-key\n-----END PRIVATE KEY-----\n"
-   FIREBASE_CLIENT_EMAIL=from-service-account-json
-   FIREBASE_CLIENT_ID=from-service-account-json
-   ```
-
-   **Update `client/.env`:**
-   ```env
-   REACT_APP_FIREBASE_API_KEY=your-actual-api-key
-   REACT_APP_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
-   REACT_APP_FIREBASE_PROJECT_ID=your-actual-project-id
-   REACT_APP_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
-   REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your-messaging-sender-id
-   REACT_APP_FIREBASE_APP_ID=your-app-id
-   ```
-
-### 4. Set Up GitHub OAuth
-
-1. **Create GitHub OAuth App**
-   - Go to [GitHub Settings](https://github.com/settings/developers) → OAuth Apps
-   - Click "New OAuth App"
-   - **Application name**: CelebrateHub
-   - **Homepage URL**: `http://localhost:3000`
-   - **Authorization callback URL**: `http://localhost:3000`
-
-2. **Configure Firebase Auth**
-   - Firebase Console → Authentication → Sign-in method → GitHub
-   - Add your GitHub Client ID and Client Secret
-
-### 5. Start the Application
-
-```bash
-# Option 1: Use the start script
-./start-app.sh
-
-# Option 2: Start manually
-# Terminal 1 - Server
-cd server && node index.js
-
-# Terminal 2 - Client  
-cd client && npm start
-```
-
-### 6. Access the Application
-
-- **Frontend**: [http://localhost:3000](http://localhost:3000)
-- **API**: [http://localhost:5001/api/health](http://localhost:5001/api/health)
-
-## 📁 Project Structure
+This project is organized into two main folders:
 
 ```
-milestone-web-app/
-├── client/                 # React frontend
-│   ├── src/
-│   │   ├── components/     # React components
-│   │   ├── contexts/       # React contexts (Auth, Theme)
-│   │   ├── config/         # Firebase configuration
-│   │   └── services/       # API services
-│   └── package.json
-├── server/                 # Node.js backend
-│   ├── routes/            # API routes
-│   ├── services/          # Business logic
-│   ├── config/            # Firebase admin config
-│   └── index.js
-├── setup.sh              # Setup script
-├── start-app.sh          # Start script
+hibro/
+├── frontend/              # React frontend application
+├── backend/               # Express.js API server
 └── README.md
 ```
 
-## 🔧 Manual Setup (Alternative)
+## Quick Start
 
-If the setup script doesn't work, follow these manual steps:
-
-### 1. Install Dependencies
-
+### Install All Dependencies
 ```bash
-# Root dependencies
-npm install
-
-# Client dependencies
-cd client
-npm install
-cd ..
+npm run install:all
 ```
 
-### 2. Environment Setup
-
-Create `.env` in root directory:
-```env
-FIREBASE_PROJECT_ID=celebratehub-mvp
-FIREBASE_PRIVATE_KEY_ID=your-private-key-id
-FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nyour-private-key\n-----END PRIVATE KEY-----\n"
-FIREBASE_CLIENT_EMAIL=your-client-email@celebratehub-mvp.iam.gserviceaccount.com
-FIREBASE_CLIENT_ID=your-client-id
-FIREBASE_AUTH_URI=https://accounts.google.com/o/oauth2/auth
-FIREBASE_TOKEN_URI=https://oauth2.googleapis.com/token
-OPENAI_API_KEY=your-openai-api-key
-PORT=5001
-NODE_ENV=development
-```
-
-Create `client/.env`:
-```env
-REACT_APP_FIREBASE_API_KEY=your-firebase-api-key
-REACT_APP_FIREBASE_AUTH_DOMAIN=celebratehub-mvp.firebaseapp.com
-REACT_APP_FIREBASE_PROJECT_ID=celebratehub-mvp
-REACT_APP_FIREBASE_STORAGE_BUCKET=celebratehub-mvp.firebasestorage.app
-REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your-messaging-sender-id
-REACT_APP_FIREBASE_APP_ID=your-firebase-app-id
-```
-
-### 3. Start Applications
-
+### Development Mode (Both Frontend & Backend)
 ```bash
-# Terminal 1 - Server (port 5001)
-cd server && node index.js
-
-# Terminal 2 - Client (port 3000)
-cd client && npm start
+npm run dev
 ```
 
-## 🐛 Troubleshooting
+### Individual Development
 
-### Common Issues
-
-1. **Port Already in Use**
-   ```bash
-   # Kill processes on ports 3000 and 5001
-   lsof -ti:3000 | xargs kill -9
-   lsof -ti:5001 | xargs kill -9
-   ```
-
-2. **Firebase Authentication Not Working**
-   - Check if GitHub OAuth is enabled in Firebase Console
-   - Verify callback URL matches exactly: `http://localhost:3000`
-   - Check browser console for errors
-
-3. **Dependencies Not Installing**
-   ```bash
-   # Clear npm cache and reinstall
-   npm cache clean --force
-   rm -rf node_modules package-lock.json
-   npm install
-   ```
-
-4. **Environment Variables Not Loading**
-   - Ensure `.env` files are in correct locations
-   - Restart the applications after updating `.env`
-   - Check for typos in variable names
-
-### Debug Mode
-
-Enable debug logging:
+**Frontend only:**
 ```bash
-# Set environment variable
-export NODE_ENV=development
-
-# Check server logs
-cd server && node index.js
-
-# Check client console (F12 in browser)
+npm run dev:frontend
 ```
+Runs on http://localhost:3000
 
-## 📚 Documentation
+**Backend only:**
+```bash
+npm run dev:backend
+```
+Runs on http://localhost:5001
 
-- [Firebase Setup Guide](FIREBASE_SETUP.md)
-- [Implementation Summary](IMPLEMENTATION_SUMMARY.md)
-- [Deployment Guide](DEPLOYMENT.md)
+## Features
 
-## 🤝 Contributing
+- 🎯 **Interactive Background** - Canvas-based morphing effects with circular lens distortion
+- 🎉 **Milestone Tracking** - GitHub milestone celebration system
+- 🤖 **AI Integration** - OpenAI-powered content generation
+- 🔐 **Authentication** - GitHub OAuth integration
+- 🎨 **Modern UI** - Tailwind CSS with smooth animations
+- 📱 **Responsive** - Works on all device sizes
 
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature-name`
-3. Commit changes: `git commit -m 'Add feature'`
-4. Push to branch: `git push origin feature-name`
-5. Submit a pull request
+## Technology Stack
 
-## 📄 License
+- **Frontend**: React 18, React Router, Framer Motion, Tailwind CSS
+- **Backend**: Express.js, Firebase Admin SDK, OpenAI API
+- **Database**: Firebase Firestore
+- **Authentication**: Firebase Auth with GitHub OAuth
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## Development
 
-## 🙏 Acknowledgments
+Each folder can be developed independently:
 
-- Firebase for authentication and database
-- React for the frontend framework
-- Framer Motion for animations
-- Lucide React for icons
+1. **Frontend** - React app with hot reload
+2. **Backend** - Express server with nodemon
 
----
+## Scripts
 
-**Made with ❤️ for the developer community**
+- `npm run dev` - Start both frontend and backend
+- `npm run dev:frontend` - Start frontend only
+- `npm run dev:backend` - Start backend only
+- `npm run install:all` - Install all dependencies
+- `npm run build:frontend` - Build frontend for production
+- `npm run start:backend` - Start backend in production mode
+
+## Deployment
+
+- Frontend can be deployed to Vercel, Netlify, or similar
+- Backend can be deployed to Railway, Heroku, or similar
+
+## Contributing
+
+1. Make changes in the appropriate folder
+2. Test both frontend and backend independently
+3. Ensure all imports are correctly updated
