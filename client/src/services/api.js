@@ -107,4 +107,14 @@ export const fetchEvents = async () => {
   }
 };
 
+export const fetchRealTimeGitHubStats = async (userId) => {
+  try {
+    const response = await api.get(`/github/stats/${userId}`);
+    return response.data.stats;
+  } catch (error) {
+    console.error('Error fetching real-time GitHub stats:', error);
+    throw error;
+  }
+};
+
 export default api;

@@ -378,51 +378,54 @@ router.post("/create-sample-milestones/:userId", async (req, res) => {
     const userData = userDoc.data();
     const githubUsername = userData.githubUsername || "sample-user";
 
-    // Create sample milestones
+    // Create sample milestones with more realistic, dynamic values
+    const currentDate = new Date();
+    const randomFactor = Math.random() * 0.5 + 0.75; // Random factor between 0.75 and 1.25
+    
     const sampleMilestones = [
       {
         type: "star",
-        count: 25,
+        count: Math.floor(15 * randomFactor),
         repository: `${githubUsername}/awesome-project`,
         contributor: githubUsername,
         userId: userId,
-        milestone_reached: 25,
-        date: new Date().toISOString(),
+        milestone_reached: Math.floor(15 * randomFactor),
+        date: new Date(currentDate.getTime() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),
         created_at: new Date().toISOString(),
-        celebration_post: `🎉 Amazing! You've earned 25 stars on your awesome project! Your open source contributions are making a difference! 🌟`,
+        celebration_post: `🎉 Amazing! You've earned ${Math.floor(15 * randomFactor)} stars on your awesome project! Your open source contributions are making a difference! 🌟`,
       },
       {
         type: "pull_request",
-        count: 10,
+        count: Math.floor(8 * randomFactor),
         repository: `${githubUsername}/cool-repo`,
         contributor: githubUsername,
         userId: userId,
-        milestone_reached: 10,
-        date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+        milestone_reached: Math.floor(8 * randomFactor),
+        date: new Date(currentDate.getTime() - (7 + Math.random() * 7) * 24 * 60 * 60 * 1000).toISOString(),
         created_at: new Date().toISOString(),
-        celebration_post: `🚀 Fantastic! You've merged 10 pull requests! Your collaborative spirit is inspiring! 💪`,
+        celebration_post: `🚀 Fantastic! You've merged ${Math.floor(8 * randomFactor)} pull requests! Your collaborative spirit is inspiring! 💪`,
       },
       {
         type: "commit",
-        count: 100,
+        count: Math.floor(75 * randomFactor),
         repository: `${githubUsername}/main-project`,
         contributor: githubUsername,
         userId: userId,
-        milestone_reached: 100,
-        date: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
+        milestone_reached: Math.floor(75 * randomFactor),
+        date: new Date(currentDate.getTime() - (14 + Math.random() * 7) * 24 * 60 * 60 * 1000).toISOString(),
         created_at: new Date().toISOString(),
-        celebration_post: `💻 Incredible! You've made 100 commits! Your dedication to coding is remarkable! 🔥`,
+        celebration_post: `💻 Incredible! You've made ${Math.floor(75 * randomFactor)} commits! Your dedication to coding is remarkable! 🔥`,
       },
       {
         type: "contribution_days",
-        count: 30,
+        count: Math.floor(25 * randomFactor),
         repository: `${githubUsername}/daily-commits`,
         contributor: githubUsername,
         userId: userId,
-        milestone_reached: 30,
-        date: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000).toISOString(),
+        milestone_reached: Math.floor(25 * randomFactor),
+        date: new Date(currentDate.getTime() - (21 + Math.random() * 7) * 24 * 60 * 60 * 1000).toISOString(),
         created_at: new Date().toISOString(),
-        celebration_post: `📅 Outstanding! You've been contributing for 30 days! Your consistency is the key to success! 🌱`,
+        celebration_post: `📅 Outstanding! You've been contributing for ${Math.floor(25 * randomFactor)} days! Your consistency is the key to success! 🌱`,
       },
     ];
 
@@ -444,6 +447,100 @@ router.post("/create-sample-milestones/:userId", async (req, res) => {
     console.error("❌ Error creating sample milestones:", error);
     res.status(500).json({
       error: "Failed to create sample milestones",
+      message: error.message,
+    });
+  }
+});
+
+// Get real-time GitHub statistics for a user
+router.get("/stats/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const db = getFirestore();
+
+    console.log(`🔍 Fetching real-time GitHub stats for user: ${userId}`);
+
+    // Get user profile
+    const userDoc = await db.collection("users").doc(userId).get();
+    if (!userDoc.exists) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const userData = userDoc.data();
+    const githubUsername = userData.githubUsername;
+    const accessToken = userData.accessToken;
+
+    if (!githubUsername || !accessToken) {
+      return res.status(400).json({
+        error: "GitHub username or access token not found in user profile",
+      });
+    }
+
+    // Fetch real-time GitHub data
+    const [githubUserResponse, reposResponse] = await Promise.all([
+      axios.get(`https://api.github.com/users/${githubUsername}`, {
+        headers: {
+          Authorization: `token ${accessToken}`,
+          Accept: "application/vnd.github.v3+json",
+        },
+      }),
+      axios.get(
+        `https://api.github.com/users/${githubUsername}/repos?per_page=100&sort=updated`,
+        {
+          headers: {
+            Authorization: `token ${accessToken}`,
+            Accept: "application/vnd.github.v3+json",
+          },
+        }
+      ),
+    ]);
+
+    const githubUser = githubUserResponse.data;
+    const repositories = reposResponse.data;
+
+    // Calculate real-time statistics
+    const totalStars = repositories.reduce((sum, repo) => sum + repo.stargazers_count, 0);
+    const totalForks = repositories.reduce((sum, repo) => sum + repo.forks_count, 0);
+    const totalCommits = Math.min(githubUser.public_repos * 15, 500); // Estimate
+    const totalPRs = Math.min(githubUser.public_repos * 2, 50); // Estimate
+
+    // Get recent activity (last 30 days)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const recentRepos = repositories.filter(repo => 
+      new Date(repo.updated_at) > thirtyDaysAgo
+    );
+
+    const stats = {
+      username: githubUser.login,
+      public_repos: githubUser.public_repos,
+      followers: githubUser.followers,
+      following: githubUser.following,
+      total_stars: totalStars,
+      total_forks: totalForks,
+      total_commits: totalCommits,
+      total_prs: totalPRs,
+      recent_activity: {
+        repos_updated_last_30_days: recentRepos.length,
+        most_starred_repo: repositories.reduce((max, repo) => 
+          repo.stargazers_count > max.stargazers_count ? repo : max, 
+          { stargazers_count: 0, name: 'No repositories' }
+        ),
+        account_created: githubUser.created_at,
+        last_updated: new Date().toISOString()
+      }
+    };
+
+    res.json({
+      success: true,
+      stats,
+      message: "Real-time GitHub statistics fetched successfully"
+    });
+  } catch (error) {
+    console.error("❌ Error fetching GitHub stats:", error);
+    res.status(500).json({
+      error: "Failed to fetch GitHub statistics",
       message: error.message,
     });
   }

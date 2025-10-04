@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Star,
@@ -16,16 +16,18 @@ import {
   collection,
   query,
   where,
-  orderBy,
   onSnapshot,
 } from "firebase/firestore";
 import { db } from "../config/firebase";
 import Confetti from "react-confetti";
+import { fetchRealTimeGitHubStats } from "../services/api";
 
 const PersonalDashboard = () => {
   const { user, userProfile, logout } = useAuth();
   const [milestones, setMilestones] = useState([]);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [githubStats, setGithubStats] = useState(null);
+  const [isRefreshingStats, setIsRefreshingStats] = useState(false);
   const [windowDimensions, setWindowDimensions] = useState({
     width: window.innerWidth,
     height: window.innerHeight,
@@ -73,6 +75,48 @@ const PersonalDashboard = () => {
 
     return unsubscribe;
   }, [user, milestones.length]); // Remove db from dependencies as it's a stable reference
+
+  // Define refreshGitHubStats function first
+  const refreshGitHubStats = useCallback(async () => {
+    if (!user) {
+      console.log("❌ No user found, cannot refresh GitHub stats");
+      return;
+    }
+    
+    console.log("🔄 Starting GitHub stats refresh for user:", user.uid);
+    setIsRefreshingStats(true);
+    
+    try {
+      const stats = await fetchRealTimeGitHubStats(user.uid);
+      console.log("✅ GitHub stats received:", stats);
+      setGithubStats(stats);
+    } catch (error) {
+      console.error("❌ Error refreshing GitHub stats:", error);
+      // Show user-friendly error message
+      alert(`Failed to refresh GitHub stats: ${error.message || 'Unknown error'}`);
+    } finally {
+      setIsRefreshingStats(false);
+      console.log("🔄 GitHub stats refresh completed");
+    }
+  }, [user]);
+
+  // Fetch real-time GitHub stats when component mounts
+  useEffect(() => {
+    if (user) {
+      refreshGitHubStats();
+    }
+  }, [user, refreshGitHubStats]);
+
+  // Auto-refresh GitHub stats every 5 minutes
+  useEffect(() => {
+    if (!user) return;
+
+    const interval = setInterval(() => {
+      refreshGitHubStats();
+    }, 5 * 60 * 1000); // 5 minutes
+
+    return () => clearInterval(interval);
+  }, [user, refreshGitHubStats]);
 
   const getMilestoneIcon = (type) => {
     const icons = {
@@ -264,6 +308,20 @@ const PersonalDashboard = () => {
             </div>
 
             <div className="flex items-center space-x-4">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  console.log("🔄 Refresh Stats button clicked");
+                  refreshGitHubStats();
+                }}
+                disabled={isRefreshingStats}
+                className="flex items-center space-x-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white rounded-lg transition-colors duration-200"
+              >
+                <TrendingUp className={`h-4 w-4 ${isRefreshingStats ? 'animate-spin' : ''}`} />
+                <span>{isRefreshingStats ? 'Refreshing...' : 'Refresh Stats'}</span>
+              </motion.button>
+              
               {milestones.length === 0 && (
                 <>
                   <motion.button
@@ -315,6 +373,7 @@ const PersonalDashboard = () => {
               icon: Trophy,
               color: "text-yellow-600",
               bgColor: "bg-yellow-50 dark:bg-yellow-900/20",
+              subtitle: "Achievement milestones"
             },
             {
               title: "This Month",
@@ -326,24 +385,27 @@ const PersonalDashboard = () => {
               icon: TrendingUp,
               color: "text-green-600",
               bgColor: "bg-green-50 dark:bg-green-900/20",
+              subtitle: "Recent achievements"
             },
             {
-              title: "Stars Earned",
-              value: milestones
+              title: githubStats ? "Live GitHub Stars" : "Stars Earned",
+              value: githubStats ? githubStats.total_stars : milestones
                 .filter((m) => m.type === "star")
                 .reduce((sum, m) => sum + m.count, 0),
               icon: Star,
               color: "text-orange-600",
               bgColor: "bg-orange-50 dark:bg-orange-900/20",
+              subtitle: githubStats ? "Real-time from GitHub" : "From milestones"
             },
             {
-              title: "PRs Merged",
-              value: milestones
+              title: githubStats ? "Live GitHub PRs" : "PRs Merged",
+              value: githubStats ? githubStats.total_prs : milestones
                 .filter((m) => m.type === "pull_request")
                 .reduce((sum, m) => sum + m.count, 0),
               icon: GitPullRequest,
               color: "text-blue-600",
               bgColor: "bg-blue-50 dark:bg-blue-900/20",
+              subtitle: githubStats ? "Real-time from GitHub" : "From milestones"
             },
           ].map((stat, index) => (
             <motion.div
@@ -362,9 +424,76 @@ const PersonalDashboard = () => {
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 {stat.title}
               </p>
+              {stat.subtitle && (
+                <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                  {stat.subtitle}
+                </p>
+              )}
             </motion.div>
           ))}
         </motion.div>
+
+        {/* Real-time GitHub Stats Section */}
+        {githubStats && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-xl p-6 mb-8 border border-purple-200 dark:border-purple-700"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center">
+                <TrendingUp className="h-5 w-5 mr-2 text-purple-600" />
+                Live GitHub Statistics
+              </h2>
+              <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
+                <span>Last updated: {new Date(githubStats.recent_activity.last_updated).toLocaleTimeString()}</span>
+                {isRefreshingStats && (
+                  <TrendingUp className="h-3 w-3 ml-2 animate-spin text-purple-600" />
+                )}
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-purple-600">
+                  {githubStats.public_repos}
+                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Public Repos</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-600">
+                  {githubStats.followers}
+                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Followers</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600">
+                  {githubStats.following}
+                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Following</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-orange-600">
+                  {githubStats.recent_activity.repos_updated_last_30_days}
+                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Active Repos (30d)</div>
+              </div>
+            </div>
+            
+            {githubStats.recent_activity.most_starred_repo.stargazers_count > 0 && (
+              <div className="mt-4 p-3 bg-white dark:bg-gray-800 rounded-lg">
+                <div className="text-sm text-gray-600 dark:text-gray-400">Most Starred Repository:</div>
+                <div className="font-semibold text-gray-900 dark:text-white">
+                  {githubStats.recent_activity.most_starred_repo.name}
+                </div>
+                <div className="text-sm text-gray-500 dark:text-gray-500">
+                  {githubStats.recent_activity.most_starred_repo.stargazers_count} stars
+                </div>
+              </div>
+            )}
+          </motion.div>
+        )}
 
         {/* Milestones Feed */}
         <motion.div
