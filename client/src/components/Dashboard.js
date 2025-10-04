@@ -3,10 +3,12 @@ import { TrendingUp, Users, Award, Calendar } from 'lucide-react';
 import MilestoneCard from './MilestoneCard';
 import StatsCard from './StatsCard';
 import FilterBar from './FilterBar';
+import Card3DDemo from './Card3DDemo';
 
 const Dashboard = ({ milestones, stats, onNewMilestone }) => {
   const [filter, setFilter] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
+  const [showDemo, setShowDemo] = useState(false);
 
   const filteredMilestones = milestones.filter(milestone => {
     if (filter === 'all') return true;
@@ -75,6 +77,20 @@ const Dashboard = ({ milestones, stats, onNewMilestone }) => {
         ))}
       </div>
 
+      {/* 3D Cards Demo Toggle */}
+      <div className="text-center">
+        <button
+          onClick={() => setShowDemo(!showDemo)}
+          className="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-primary-600 to-purple-600 hover:from-primary-700 hover:to-purple-700 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+        >
+          <span>{showDemo ? 'Hide' : 'Show'} 3D Cards Demo</span>
+          <TrendingUp className="h-4 w-4" />
+        </button>
+      </div>
+
+      {/* 3D Cards Demo */}
+      {showDemo && <Card3DDemo />}
+
       {/* Filter and Sort Controls */}
       <FilterBar 
         filter={filter}
@@ -88,10 +104,10 @@ const Dashboard = ({ milestones, stats, onNewMilestone }) => {
       {/* Milestones Grid */}
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-900">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
             Recent Milestones
             {filteredMilestones.length !== milestones.length && (
-              <span className="text-sm font-normal text-gray-500 ml-2">
+              <span className="text-sm font-normal text-gray-500 dark:text-gray-400 ml-2">
                 ({filteredMilestones.length} of {milestones.length})
               </span>
             )}
@@ -100,9 +116,9 @@ const Dashboard = ({ milestones, stats, onNewMilestone }) => {
 
         {sortedMilestones.length === 0 ? (
           <div className="text-center py-12">
-            <Award className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No milestones found</h3>
-            <p className="text-gray-600">
+            <Award className="h-12 w-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No milestones found</h3>
+            <p className="text-gray-600 dark:text-gray-400">
               {filter === 'all' 
                 ? "No milestones have been recorded yet. Set up your GitHub webhook to start tracking!"
                 : "No milestones match your current filter. Try adjusting your filters."

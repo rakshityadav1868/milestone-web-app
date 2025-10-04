@@ -1,6 +1,7 @@
 import React from 'react';
 import { Github, RefreshCw, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
+import ThemeToggle from './ThemeToggle';
 
 const Header = ({ onRefresh }) => {
   const handleRefresh = async () => {
@@ -13,7 +14,7 @@ const Header = ({ onRefresh }) => {
   };
 
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200">
+    <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 transition-colors duration-300">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
@@ -22,14 +23,14 @@ const Header = ({ onRefresh }) => {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gradient">CelebrateHub</h1>
-              <p className="text-sm text-gray-600">GitHub Milestone Celebrations</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">GitHub Milestone Celebrations</p>
             </div>
           </div>
           
           <div className="flex items-center space-x-4">
             <button
               onClick={handleRefresh}
-              className="flex items-center space-x-2 px-4 py-2 text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors duration-200"
+              className="flex items-center space-x-2 px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors duration-200"
             >
               <RefreshCw className="h-4 w-4" />
               <span>Refresh</span>
@@ -39,11 +40,13 @@ const Header = ({ onRefresh }) => {
               href="https://github.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center space-x-2 px-4 py-2 text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors duration-200"
+              className="flex items-center space-x-2 px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors duration-200"
             >
               <Github className="h-4 w-4" />
               <span>GitHub</span>
             </a>
+            
+            <ThemeToggle />
           </div>
         </div>
       </div>

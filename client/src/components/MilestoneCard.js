@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { generateCelebrationPost } from '../services/api';
+import InteractiveCard3D from './InteractiveCard3D';
 
 const MilestoneCard = ({ milestone, onNewMilestone }) => {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -100,17 +101,23 @@ const MilestoneCard = ({ milestone, onNewMilestone }) => {
   };
 
   return (
-    <div className="milestone-card group hover:shadow-lg transition-all duration-300">
+    <InteractiveCard3D
+      className="milestone-card group bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-100 dark:border-gray-700 shadow-md transition-all duration-500 ease-out transform-gpu"
+      maxTilt={12}
+      scaleOnHover={1.03}
+      perspective={1200}
+      shadowIntensity={0.25}
+    >
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center space-x-3">
           <div className={`p-2 rounded-lg ${getEventColor(milestone.type)}`}>
             {getEventIcon(milestone.type)}
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900 capitalize">
+            <h3 className="font-semibold text-gray-900 dark:text-gray-100 capitalize">
               {milestone.type.replace('_', ' ')} Milestone
             </h3>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               {milestone.count} {milestone.type.replace('_', ' ')}
               {milestone.count !== 1 ? 's' : ''}
             </p>
@@ -118,7 +125,7 @@ const MilestoneCard = ({ milestone, onNewMilestone }) => {
         </div>
         
         <div className="text-right">
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-500 dark:text-gray-400">
             {formatDate(milestone.created_at)}
           </p>
         </div>
@@ -127,29 +134,29 @@ const MilestoneCard = ({ milestone, onNewMilestone }) => {
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-gray-900">
+            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
               {milestone.contributor}
             </p>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               in {milestone.repository}
             </p>
           </div>
         </div>
 
         {generatedPost && (
-          <div className="bg-gray-50 rounded-lg p-3">
-            <p className="text-sm text-gray-700 italic">
+          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+            <p className="text-sm text-gray-700 dark:text-gray-300 italic">
               "{generatedPost}"
             </p>
           </div>
         )}
 
-        <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+        <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-600">
           <div className="flex space-x-2">
             <button
               onClick={handleCopyPost}
               disabled={isGenerating}
-              className="flex items-center space-x-1 px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-md transition-colors duration-200 disabled:opacity-50"
+              className="flex items-center space-x-1 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-md transition-colors duration-200 disabled:opacity-50"
             >
               <Copy className="h-3 w-3" />
               <span>{isGenerating ? 'Generating...' : 'Copy'}</span>
@@ -158,7 +165,7 @@ const MilestoneCard = ({ milestone, onNewMilestone }) => {
             <button
               onClick={handleShare}
               disabled={isGenerating}
-              className="flex items-center space-x-1 px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-md transition-colors duration-200 disabled:opacity-50"
+              className="flex items-center space-x-1 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-md transition-colors duration-200 disabled:opacity-50"
             >
               <Share2 className="h-3 w-3" />
               <span>Share</span>
@@ -169,14 +176,14 @@ const MilestoneCard = ({ milestone, onNewMilestone }) => {
             href={`https://github.com/${milestone.repository}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center space-x-1 px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-md transition-colors duration-200"
+            className="flex items-center space-x-1 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-md transition-colors duration-200"
           >
             <ExternalLink className="h-3 w-3" />
             <span>View Repo</span>
           </a>
         </div>
       </div>
-    </div>
+    </InteractiveCard3D>
   );
 };
 
