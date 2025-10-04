@@ -21,12 +21,8 @@ const LandingPage = () => {
   // Check Firebase configuration status
   useEffect(() => {
     const checkFirebaseConfig = () => {
-      const apiKey = process.env.REACT_APP_FIREBASE_API_KEY;
-      const projectId = process.env.REACT_APP_FIREBASE_PROJECT_ID;
-      const isConfigured = apiKey && projectId && 
-        apiKey !== "demo-api-key" && 
-        projectId !== "demo-project";
-      setIsFirebaseConfigured(isConfigured);
+      // Since we're using hardcoded Firebase config, it should always be configured
+      setIsFirebaseConfigured(true);
     };
     
     checkFirebaseConfig();

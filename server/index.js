@@ -1,9 +1,11 @@
+// server/index.js
+
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const bodyParser = require('body-parser');
-require('dotenv').config();
 
 const { initializeFirebase } = require('./config/firebase');
 const webhookRoutes = require('./routes/webhook');
@@ -11,7 +13,7 @@ const milestoneRoutes = require('./routes/milestones');
 const aiRoutes = require('./routes/ai');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 // Initialize Firebase
 initializeFirebase();
@@ -28,7 +30,7 @@ app.use(cors({
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
+  max: 100
 });
 app.use('/api/', limiter);
 

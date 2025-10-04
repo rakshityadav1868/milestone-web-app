@@ -3,41 +3,34 @@ import { getAuth, GithubAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY || "demo-api-key",
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN || "demo-project.firebaseapp.com",
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID || "demo-project",
-  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET || "demo-project.appspot.com",
-  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID || "123456789",
-  appId: process.env.REACT_APP_FIREBASE_APP_ID || "1:123456789:web:demo",
+  apiKey: "AIzaSyChEmBW6AjTvsOyxcxoOqFR7kJJ8riTLjE",
+  authDomain: "celebratehub-mvp.firebaseapp.com",
+  projectId: "celebratehub-mvp",
+  storageBucket: "celebratehub-mvp.firebasestorage.app",
+  messagingSenderId: "498272678117",
+  appId: "1:498272678117:web:664adc871eddef5036640c",
+  measurementId: "G-HF9VFD4F1C"
 };
 
-// Check if Firebase is properly configured
-const isFirebaseConfigured = process.env.REACT_APP_FIREBASE_API_KEY && 
-  process.env.REACT_APP_FIREBASE_PROJECT_ID &&
-  process.env.REACT_APP_FIREBASE_API_KEY !== "demo-api-key" &&
-  process.env.REACT_APP_FIREBASE_PROJECT_ID !== "demo-project";
-
-// Initialize Firebase only if properly configured
+// Initialize Firebase
 let app = null;
 let auth = null;
 let db = null;
 let githubProvider = null;
 
-if (isFirebaseConfigured) {
-  try {
-    app = initializeApp(firebaseConfig);
-    auth = getAuth(app);
-    db = getFirestore(app);
-    
-    // GitHub Auth Provider
-    githubProvider = new GithubAuthProvider();
-    githubProvider.addScope("repo");
-    githubProvider.addScope("user:email");
-  } catch (error) {
-    console.warn("Firebase initialization failed:", error);
-  }
-} else {
-  console.log("🔥 Firebase not configured - running in demo mode");
+try {
+  app = initializeApp(firebaseConfig);
+  auth = getAuth(app);
+  db = getFirestore(app);
+  
+  // GitHub Auth Provider
+  githubProvider = new GithubAuthProvider();
+  githubProvider.addScope("repo");
+  githubProvider.addScope("user:email");
+  
+  console.log("🔥 Firebase initialized successfully");
+} catch (error) {
+  console.warn("Firebase initialization failed:", error);
 }
 
 // Export Firebase services (null if not configured)
