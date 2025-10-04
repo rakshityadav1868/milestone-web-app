@@ -1,3 +1,4 @@
+import { GithubAuthProvider } from "firebase/auth";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import {
   signInWithPopup,
@@ -30,6 +31,8 @@ export const AuthProvider = ({ children }) => {
   const signInWithGitHub = async () => {
     if (!isFirebaseConfigured) {
       console.warn("Firebase not configured - cannot sign in");
+      // Show user-friendly error message
+      alert("Firebase authentication is not configured. Please set up your Firebase credentials to use this feature. Check the FIREBASE_SETUP.md file for instructions.");
       throw new Error("Firebase authentication not configured");
     }
 

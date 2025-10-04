@@ -12,7 +12,9 @@
     "build": "cd client && npm run build",
     "start": "node server/index.js",
     "start-demo": "node server/index-simple.js",
-    "install-all": "npm install && cd client && npm install"
+    "install-all": "npm install && cd client && npm install",
+    "setup": "echo 'Running setup...' && npm run install-all && echo 'Setup complete! Run npm run dev-demo to start the app.'",
+    "postinstall": "echo 'Dependencies installed! Run npm run dev-demo to start the app.'"
   },
   "dependencies": {
     "express": "^4.18.2",

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import {
   Github,
   Sparkles,
@@ -7,19 +8,55 @@ import {
   GitPullRequest,
   Bug,
   GitCommit,
+  ArrowRight,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 
 const LandingPage = () => {
-  const { signInWithGitHub } = useAuth();
+  const { user, signInWithGitHub, loading: authLoading } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [isFirebaseConfigured, setIsFirebaseConfigured] = useState(true);
+  const navigate = useNavigate();
 
-  const handleGitHubLogin = async () => {
+  // Check Firebase configuration status
+  useEffect(() => {
+    const checkFirebaseConfig = () => {
+      const apiKey = process.env.REACT_APP_FIREBASE_API_KEY;
+      const projectId = process.env.REACT_APP_FIREBASE_PROJECT_ID;
+      const isConfigured = apiKey && projectId && 
+        apiKey !== "demo-api-key" && 
+        projectId !== "demo-project";
+      setIsFirebaseConfigured(isConfigured);
+    };
+    
+    checkFirebaseConfig();
+  }, []);
+
+  // Redirect to dashboard if user is already authenticated
+  useEffect(() => {
+    if (user && !authLoading) {
+      navigate("/dashboard");
+    }
+  }, [user, authLoading, navigate]);
+
+  const handleGetStarted = async () => {
+    // Prevent multiple clicks
+    if (isLoading) return;
+
     setIsLoading(true);
+    
     try {
-      await signInWithGitHub();
+      if (user) {
+        // User is already logged in, redirect to dashboard
+        navigate("/dashboard");
+      } else {
+        // User is not logged in, trigger GitHub login
+        await signInWithGitHub();
+        // After successful login, useEffect will handle the redirect
+      }
     } catch (error) {
-      console.error("Login failed:", error);
+      console.error("Get Started failed:", error);
+      // Error message is already shown in AuthContext
     } finally {
       setIsLoading(false);
     }
@@ -124,36 +161,91 @@ const LandingPage = () => {
               contribution deserves celebration! 🎉
             </motion.p>
 
-            {/* CTA Button */}
+            {/* Firebase Configuration Warning */}
+            {!isFirebaseConfigured && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5, duration: 0.8 }}
+                className="mb-8 p-4 bg-yellow-500/20 border border-yellow-500/30 rounded-lg backdrop-blur-sm"
+              >
+                <div className="flex items-center space-x-2 text-yellow-200">
+                  <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
+                  <span className="font-medium">Demo Mode</span>
+                </div>
+                <p className="text-yellow-100 text-sm mt-2">
+                  Firebase authentication is not configured. To use GitHub login, please set up your Firebase credentials. 
+                  Check the <code className="bg-yellow-500/20 px-1 rounded">FIREBASE_SETUP.md</code> file for instructions.
+                </p>
+              </motion.div>
+            )}
+
+            {/* Get Started Button */}
             <motion.button
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.8 }}
-              whileHover={{ scale: 1.05, y: -2 }}
+              whileHover={{ scale: isFirebaseConfigured ? 1.05 : 1, y: isFirebaseConfigured ? -2 : 0 }}
               whileTap={{ scale: 0.95 }}
-              onClick={handleGitHubLogin}
-              disabled={isLoading}
-              className="group relative inline-flex items-center space-x-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold px-8 py-4 rounded-full text-lg transition-all duration-300 shadow-2xl hover:shadow-blue-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={handleGetStarted}
+              disabled={isLoading || authLoading || !isFirebaseConfigured}
+              className={`group relative inline-flex items-center space-x-3 font-semibold px-8 py-4 rounded-full text-lg transition-all duration-300 shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed ${
+                isFirebaseConfigured 
+                  ? "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white hover:shadow-blue-500/25" 
+                  : "bg-gray-600 text-gray-300 cursor-not-allowed"
+              }`}
             >
               {isLoading ? (
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
               ) : (
                 <>
                   <Github className="h-6 w-6" />
-                  <span>Let's Celebrate 🎉</span>
+                  <span>{isFirebaseConfigured ? "Get Started" : "Setup Required"}</span>
+                  {isFirebaseConfigured && <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />}
                 </>
               )}
 
               {/* Glow effect */}
-              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-300"></div>
+              {isFirebaseConfigured && (
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-300"></div>
+              )}
             </motion.button>
+
+            {/* Additional CTA for GitHub Login */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8, duration: 0.8 }}
+              className="mt-6"
+            >
+              <p className="text-white/60 text-sm mb-4">
+                {isFirebaseConfigured 
+                  ? "Sign in with GitHub to access your personalized dashboard"
+                  : "Configure Firebase to enable GitHub authentication"
+                }
+              </p>
+              <motion.button
+                whileHover={{ scale: isFirebaseConfigured ? 1.02 : 1 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleGetStarted}
+                disabled={isLoading || authLoading || !isFirebaseConfigured}
+                className={`inline-flex items-center space-x-2 backdrop-blur-sm font-medium px-6 py-3 rounded-full text-sm transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${
+                  isFirebaseConfigured 
+                    ? "bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40" 
+                    : "bg-gray-600/20 text-gray-400 border border-gray-600/20 cursor-not-allowed"
+                }`}
+              >
+                <Github className="h-4 w-4" />
+                <span>{isFirebaseConfigured ? "Continue with GitHub" : "Setup Required"}</span>
+              </motion.button>
+            </motion.div>
           </motion.div>
 
           {/* Features Preview */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.8 }}
+            transition={{ delay: 1, duration: 0.8 }}
             className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8"
           >
             {[

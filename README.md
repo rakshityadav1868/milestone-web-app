@@ -17,6 +17,8 @@ A modern full-stack application that tracks GitHub repository milestones and gen
 
 ## 🚀 Quick Start
 
+> **📖 New to the project?** Check out our [**Getting Started Guide**](./GETTING_STARTED.md) for a beginner-friendly walkthrough!
+
 ### Prerequisites
 
 - **Node.js 16+** and npm
@@ -37,13 +39,24 @@ For the complete Firebase MVP with GitHub authentication, real-time updates, and
 - 🔗 LinkedIn sharing integration
 - ☁️ Cloud Functions for webhooks
 
-### 1. Clone and Install
+### 🎯 **EASIEST WAY TO GET STARTED**
 
+**Option 1: Automated Setup (Recommended for new users)**
 ```bash
 git clone <your-repo-url>
-cd milestones
+cd milestone-web-app
+chmod +x setup.sh
+./setup.sh
+```
+
+**Option 2: Manual Setup**
+```bash
+git clone <your-repo-url>
+cd milestone-web-app
 npm run install-all
 ```
+
+> **⚠️ IMPORTANT**: After cloning, you MUST install dependencies first! The `node_modules` folders are not included in Git.
 
 ### 2. Environment Setup
 
@@ -301,30 +314,43 @@ contributor_stats/
 
 ### Common Issues
 
-1. **Dependencies not installed**
+1. **"Command not found" or "Module not found" errors after cloning**
+
+   **Problem**: You cloned the repo but didn't install dependencies.
+   
+   **Solution**:
+   ```bash
+   # Run the automated setup
+   ./setup.sh
+   
+   # OR manually install dependencies
+   npm run install-all
+   ```
+
+2. **Dependencies not installed**
 
    ```bash
    npm run install-all
    ```
 
-2. **Port already in use**
+3. **Port already in use**
 
    - Kill existing processes: `lsof -ti:3000 | xargs kill -9`
    - Or change ports in package.json
 
-3. **Frontend not loading**
+4. **Frontend not loading**
 
    - Check if backend is running on port 5001 (demo) or 5000 (full)
    - Verify API endpoints are accessible
    - Check browser console for errors
 
-4. **Webhook not receiving events**
+5. **Webhook not receiving events**
 
    - Check GitHub webhook configuration
    - Verify your server is accessible
    - Check server logs for errors
 
-5. **Firebase connection issues**
+6. **Firebase connection issues**
    - Verify service account credentials
    - Check Firebase project settings
    - Ensure Firestore is enabled

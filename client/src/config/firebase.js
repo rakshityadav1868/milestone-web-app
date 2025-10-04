@@ -13,7 +13,9 @@ const firebaseConfig = {
 
 // Check if Firebase is properly configured
 const isFirebaseConfigured = process.env.REACT_APP_FIREBASE_API_KEY && 
-  process.env.REACT_APP_FIREBASE_PROJECT_ID;
+  process.env.REACT_APP_FIREBASE_PROJECT_ID &&
+  process.env.REACT_APP_FIREBASE_API_KEY !== "demo-api-key" &&
+  process.env.REACT_APP_FIREBASE_PROJECT_ID !== "demo-project";
 
 // Initialize Firebase only if properly configured
 let app = null;
