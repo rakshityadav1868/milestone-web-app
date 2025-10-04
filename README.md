@@ -24,6 +24,19 @@ A modern full-stack application that tracks GitHub repository milestones and gen
 - **OpenAI API key** (optional, has fallback messages)
 - **GitHub repository** (for webhook setup)
 
+### 🆕 Firebase MVP Version
+
+For the complete Firebase MVP with GitHub authentication, real-time updates, and LinkedIn sharing, see the [Firebase Setup Guide](./FIREBASE_SETUP.md).
+
+**Firebase MVP Features:**
+
+- 🔐 GitHub OAuth authentication
+- 📱 Real-time milestone tracking
+- 🎨 Modern animated landing page
+- 📊 Personalized dashboard
+- 🔗 LinkedIn sharing integration
+- ☁️ Cloud Functions for webhooks
+
 ### 1. Clone and Install
 
 ```bash
