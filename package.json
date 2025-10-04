@@ -1,0 +1,35 @@
+{
+  "name": "celebratehub",
+  "version": "1.0.0",
+  "description": "Milestone Celebration System for GitHub repositories",
+  "main": "server/index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server-demo\" \"npm run client\"",
+    "dev-demo": "concurrently \"npm run server-demo\" \"npm run client\"",
+    "server": "nodemon server/index.js",
+    "server-demo": "nodemon server/index-simple.js",
+    "client": "cd client && npm start",
+    "build": "cd client && npm run build",
+    "start": "node server/index.js",
+    "start-demo": "node server/index-simple.js",
+    "install-all": "npm install && cd client && npm install"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "firebase-admin": "^11.11.0",
+    "openai": "^4.20.1",
+    "axios": "^1.6.2",
+    "body-parser": "^1.20.2",
+    "helmet": "^7.1.0",
+    "express-rate-limit": "^7.1.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2",
+    "concurrently": "^8.2.2"
+  },
+  "keywords": ["github", "milestones", "celebration", "ai", "webhooks"],
+  "author": "CelebrateHub Team",
+  "license": "MIT"
+}
