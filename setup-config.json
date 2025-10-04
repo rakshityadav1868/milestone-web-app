@@ -1,0 +1,58 @@
+{
+  "project": {
+    "name": "CelebrateHub",
+    "version": "1.0.0",
+    "description": "Milestone Celebration System for GitHub repositories"
+  },
+  "setup": {
+    "steps": [
+      {
+        "name": "Install root dependencies",
+        "command": "npm install",
+        "directory": ".",
+        "description": "Installing main project dependencies"
+      },
+      {
+        "name": "Install client dependencies",
+        "command": "npm install",
+        "directory": "client",
+        "description": "Installing React client dependencies"
+      },
+      {
+        "name": "Install server dependencies",
+        "command": "npm install",
+        "directory": "server",
+        "description": "Installing server dependencies"
+      },
+      {
+        "name": "Install functions dependencies",
+        "command": "npm install",
+        "directory": "functions",
+        "description": "Installing Firebase functions dependencies"
+      }
+    ],
+    "postInstall": {
+      "message": "🎉 Setup complete! You can now run the app with:",
+      "commands": [
+        "npm run dev-demo    # Start in demo mode (recommended for first run)",
+        "npm run dev         # Start with full features (requires API keys)"
+      ]
+    }
+  },
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "dev-demo": "concurrently \"npm run server-demo\" \"npm run client\"",
+    "server": "node server/index.js",
+    "server-demo": "node server/index-simple.js",
+    "client": "cd client && npm start",
+    "setup": "node setup.js"
+  },
+  "requirements": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "ports": {
+    "frontend": 3000,
+    "backend": 5001
+  }
+}

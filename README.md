@@ -17,55 +17,73 @@ A modern web application that celebrates GitHub milestones with AI-powered posts
 
 ### Prerequisites
 
-- **Node.js** 18+ ([Download](https://nodejs.org/))
-- **npm** (comes with Node.js)
+- **Node.js** 16+ ([Download](https://nodejs.org/))
+- **npm** 8+ (comes with Node.js)
 - **Git** ([Download](https://git-scm.com/))
 
 ### 1. Clone the Repository
 
 ```bash
 git clone <your-repo-url>
-cd milestone-web-app
+cd milestones
 ```
 
-### 2. Run Setup Script
+### 2. One-Command Setup
 
 ```bash
-# Make setup script executable
-chmod +x setup.sh
-
-# Run the setup script
-./setup.sh
+npm run setup
 ```
 
-This will:
-- ✅ Check Node.js and npm installation
-- ✅ Install all dependencies (root + client)
-- ✅ Create environment files with placeholders
-- ✅ Check port availability
-- ✅ Create a start script
+**That's it!** The setup script will automatically:
+
+- ✅ Check your system requirements
+- ✅ Install all dependencies (root, client, server, functions)
+- ✅ Verify everything is working
+- ✅ Show you how to start the app
+
+### 3. Start the Application
+
+After setup completes, choose your preferred mode:
+
+```bash
+# Demo mode (recommended for first run - no API keys needed)
+npm run dev-demo
+
+# OR Full mode (requires Firebase and OpenAI configuration)
+npm run dev
+```
+
+The app will be available at:
+
+- **Frontend**: http://localhost:3000
+- **Backend**: http://localhost:5001
 
 ### 3. Configure Firebase
 
 1. **Create Firebase Project**
+
    - Go to [Firebase Console](https://console.firebase.google.com)
    - Create a new project named `celebratehub-mvp`
 
 2. **Enable Services**
+
    - **Authentication** → Sign-in method → Enable GitHub
    - **Firestore Database** → Create database in test mode
 
 3. **Get Firebase Config**
+
    - Project Settings → General → Your apps → Add Web app
    - Copy the Firebase config object
 
 4. **Create Service Account**
+
    - Project Settings → Service accounts → Generate new private key
    - Download the JSON file
 
 5. **Update Environment Files**
 
    **Update `.env` (root directory):**
+
    ```env
    FIREBASE_PROJECT_ID=your-actual-project-id
    FIREBASE_PRIVATE_KEY_ID=from-service-account-json
@@ -75,6 +93,7 @@ This will:
    ```
 
    **Update `client/.env`:**
+
    ```env
    REACT_APP_FIREBASE_API_KEY=your-actual-api-key
    REACT_APP_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
@@ -87,6 +106,7 @@ This will:
 ### 4. Set Up GitHub OAuth
 
 1. **Create GitHub OAuth App**
+
    - Go to [GitHub Settings](https://github.com/settings/developers) → OAuth Apps
    - Click "New OAuth App"
    - **Application name**: CelebrateHub
@@ -107,7 +127,7 @@ This will:
 # Terminal 1 - Server
 cd server && node index.js
 
-# Terminal 2 - Client  
+# Terminal 2 - Client
 cd client && npm start
 ```
 
@@ -156,6 +176,7 @@ cd ..
 ### 2. Environment Setup
 
 Create `.env` in root directory:
+
 ```env
 FIREBASE_PROJECT_ID=celebratehub-mvp
 FIREBASE_PRIVATE_KEY_ID=your-private-key-id
@@ -170,6 +191,7 @@ NODE_ENV=development
 ```
 
 Create `client/.env`:
+
 ```env
 REACT_APP_FIREBASE_API_KEY=your-firebase-api-key
 REACT_APP_FIREBASE_AUTH_DOMAIN=celebratehub-mvp.firebaseapp.com
@@ -194,6 +216,7 @@ cd client && npm start
 ### Common Issues
 
 1. **Port Already in Use**
+
    ```bash
    # Kill processes on ports 3000 and 5001
    lsof -ti:3000 | xargs kill -9
@@ -201,11 +224,13 @@ cd client && npm start
    ```
 
 2. **Firebase Authentication Not Working**
+
    - Check if GitHub OAuth is enabled in Firebase Console
    - Verify callback URL matches exactly: `http://localhost:3000`
    - Check browser console for errors
 
 3. **Dependencies Not Installing**
+
    ```bash
    # Clear npm cache and reinstall
    npm cache clean --force
@@ -221,6 +246,7 @@ cd client && npm start
 ### Debug Mode
 
 Enable debug logging:
+
 ```bash
 # Set environment variable
 export NODE_ENV=development

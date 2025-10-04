@@ -13,7 +13,8 @@
     "start": "node server/index.js",
     "start-demo": "node server/index-simple.js",
     "install-all": "npm install && cd client && npm install",
-    "setup": "echo 'Running setup...' && npm run install-all && echo 'Setup complete! Run npm run dev to start the app.'",
+    "setup": "node setup.js",
+    "setup-old": "echo 'Running setup...' && npm run install-all && echo 'Setup complete! Run npm run dev to start the app.'",
     "postinstall": "echo 'Dependencies installed! Run npm run dev to start the app.'",
     "start-app": "concurrently \"npm run server\" \"npm run client\"",
     "kill-ports": "lsof -ti:3000,5001 | xargs kill -9 2>/dev/null || true"
