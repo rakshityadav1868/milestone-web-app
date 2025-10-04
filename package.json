@@ -4,10 +4,12 @@
   "description": "Milestone Celebration System for GitHub repositories",
   "main": "server/index.js",
   "scripts": {
-    "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "dev-demo": "concurrently \"npm run server-demo\" \"npm run client\"",
+    "dev": "npx concurrently \"npm run server\" \"npm run client\"",
+    "dev-demo": "npx concurrently \"npm run server-demo\" \"npm run client\"",
+    "dev-main": "npx concurrently \"npm run server-main\" \"npm run client\"",
     "server": "node server/index.js",
     "server-demo": "node server/index-simple.js",
+    "server-main": "node server/index-main.js",
     "client": "cd client && npm start",
     "build": "cd client && npm run build",
     "start": "node server/index.js",
@@ -16,7 +18,7 @@
     "setup": "node setup.js",
     "setup-old": "echo 'Running setup...' && npm run install-all && echo 'Setup complete! Run npm run dev to start the app.'",
     "postinstall": "echo 'Dependencies installed! Run npm run dev to start the app.'",
-    "start-app": "concurrently \"npm run server\" \"npm run client\"",
+    "start-app": "npx concurrently \"npm run server\" \"npm run client\"",
     "kill-ports": "lsof -ti:3000,5001 | xargs kill -9 2>/dev/null || true"
   },
   "dependencies": {

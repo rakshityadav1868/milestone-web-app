@@ -1,5 +1,10 @@
+// server/index-main.js - Main mode without external API dependencies
+
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
 const bodyParser = require("body-parser");
 const path = require("path");
 const axios = require("axios");
@@ -7,11 +12,30 @@ const axios = require("axios");
 const app = express();
 const PORT = process.env.PORT || 5001;
 
-// Middleware
-app.use(cors());
-app.use(bodyParser.json());
+// Security middleware
+app.use(helmet());
+app.use(
+  cors({
+    origin:
+      process.env.NODE_ENV === "production"
+        ? ["https://celebratehub.vercel.app"]
+        : ["http://localhost:3000"],
+    credentials: true,
+  })
+);
 
-// Mock data for testing
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100,
+});
+app.use("/api/", limiter);
+
+// Body parsing middleware
+app.use(bodyParser.json({ limit: "10mb" }));
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Mock data for main mode
 const mockMilestones = [
   {
     id: "1",
@@ -65,15 +89,22 @@ const mockMilestones = [
   },
 ];
 
-// Routes
+// Health check endpoint
 app.get("/api/health", (req, res) => {
   res.json({
     status: "OK",
     timestamp: new Date().toISOString(),
-    service: "CelebrateHub API (Demo Mode)",
+    service: "CelebrateHub API (Main Mode)",
+    features: {
+      github_integration: true,
+      ai_posts: "fallback_mode",
+      firebase: "not_configured",
+      real_time: true,
+    },
   });
 });
 
+// Milestones endpoints
 app.get("/api/milestones", (req, res) => {
   res.json({ milestones: mockMilestones });
 });
@@ -94,7 +125,6 @@ app.get("/api/milestones/stats", (req, res) => {
   });
 });
 
-// Additional endpoints that the frontend expects
 app.get("/api/milestones/contributor/:username", (req, res) => {
   const { username } = req.params;
   const userMilestones = mockMilestones.filter(
@@ -104,20 +134,22 @@ app.get("/api/milestones/contributor/:username", (req, res) => {
 });
 
 app.get("/api/milestones/repository/*", (req, res) => {
-  const repo = req.params[0]; // Get the full path after /repository/
+  const repo = req.params[0];
   const repoMilestones = mockMilestones.filter((m) => m.repository === repo);
   res.json({ milestones: repoMilestones });
 });
 
+// Webhook endpoints
 app.get("/api/webhook/events", (req, res) => {
   res.json({ events: [] });
 });
 
 app.post("/api/webhook", (req, res) => {
   console.log("📥 Received webhook:", req.headers["x-github-event"]);
-  res.json({ success: true, message: "Webhook received (demo mode)" });
+  res.json({ success: true, message: "Webhook received (main mode)" });
 });
 
+// AI endpoints with fallback
 app.post("/api/ai/generate-post", (req, res) => {
   const { milestone } = req.body;
   const celebrationPost = `🎉 Congratulations to ${milestone.contributor} for reaching ${milestone.count} ${milestone.type} in ${milestone.repository}! 🎉`;
@@ -132,7 +164,7 @@ app.post("/api/ai/generate-custom", (req, res) => {
   res.json({ success: true, celebration_post: celebrationPost });
 });
 
-// Simple test endpoint to fetch real GitHub data
+// GitHub integration endpoints
 app.post("/api/github/test-real-data", async (req, res) => {
   try {
     const { githubUsername, githubToken } = req.body;
@@ -210,7 +242,6 @@ app.post("/api/github/test-real-data", async (req, res) => {
   }
 });
 
-// GitHub data endpoint for demo - now with real data support
 app.post("/api/github/fetch-real-data/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
@@ -340,7 +371,7 @@ app.post("/api/github/fetch-real-data/:userId", async (req, res) => {
       res.json({
         success: true,
         message:
-          "Demo mode - using mock data (provide githubUsername and githubToken for real data)",
+          "Main mode - using mock data (provide githubUsername and githubToken for real data)",
         milestones: mockMilestones,
       });
     }
@@ -366,5 +397,10 @@ if (process.env.NODE_ENV === "production") {
 app.listen(PORT, () => {
   console.log(`🚀 CelebrateHub server running on port ${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV || "development"}`);
-  console.log(`🔧 Demo Mode: Using mock data (Firebase not configured)`);
+  console.log(`🔧 Main Mode: Full features with fallbacks`);
+  console.log(`✨ Features:`);
+  console.log(`   • GitHub Integration: ✅ Enabled`);
+  console.log(`   • AI Posts: ⚠️  Fallback mode (no OpenAI key)`);
+  console.log(`   • Real-time Data: ✅ Enabled`);
+  console.log(`   • Firebase: ⚠️  Not configured`);
 });

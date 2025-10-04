@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GitHub Data Tester - CelebrateHub</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        color: white;
+      }
+      .container {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 2.5em;
+      }
+      .form-group {
+        margin-bottom: 20px;
+      }
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+      }
+      input {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        background: rgba(255, 255, 255, 0.9);
+        color: #333;
+      }
+      button {
+        width: 100%;
+        padding: 15px;
+        background: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 18px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+      button:hover {
+        background: #45a049;
+      }
+      button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+      .result {
+        margin-top: 30px;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        display: none;
+      }
+      .success {
+        border-left: 4px solid #4caf50;
+      }
+      .error {
+        border-left: 4px solid #f44336;
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+      }
+      .stat-card {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+      }
+      .stat-number {
+        font-size: 2em;
+        font-weight: bold;
+        color: #ffd700;
+      }
+      .stat-label {
+        font-size: 0.9em;
+        opacity: 0.8;
+      }
+      .repos {
+        margin-top: 20px;
+      }
+      .repo-item {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 10px;
+        margin: 5px 0;
+        border-radius: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .loading {
+        text-align: center;
+        padding: 20px;
+      }
+      .spinner {
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        border-top: 4px solid white;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 10px;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      .instructions {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 30px;
+      }
+      .instructions h3 {
+        margin-top: 0;
+        color: #ffd700;
+      }
+      .instructions ol {
+        margin: 10px 0;
+        padding-left: 20px;
+      }
+      .instructions li {
+        margin: 5px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔍 GitHub Data Tester</h1>
+
+      <div class="instructions">
+        <h3>📝 How to get your GitHub token:</h3>
+        <ol>
+          <li>
+            Go to
+            <a
+              href="https://github.com/settings/tokens"
+              target="_blank"
+              style="color: #ffd700"
+              >GitHub Settings → Personal Access Tokens</a
+            >
+          </li>
+          <li>Click "Generate new token (classic)"</li>
+          <li>Give it a name like "CelebrateHub Test"</li>
+          <li>Select the "public_repo" scope</li>
+          <li>Click "Generate token"</li>
+          <li>Copy the token (it starts with "ghp_")</li>
+        </ol>
+      </div>
+
+      <form id="githubForm">
+        <div class="form-group">
+          <label for="username">GitHub Username:</label>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            placeholder="your-github-username"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="token">GitHub Personal Access Token:</label>
+          <input
+            type="password"
+            id="token"
+            name="token"
+            placeholder="ghp_xxxxxxxxxxxx"
+            required
+          />
+        </div>
+
+        <button type="submit" id="submitBtn">
+          🚀 Fetch My Real GitHub Data
+        </button>
+      </form>
+
+      <div id="result" class="result">
+        <div id="loading" class="loading" style="display: none">
+          <div class="spinner"></div>
+          <p>Fetching your GitHub data...</p>
+        </div>
+
+        <div id="content" style="display: none">
+          <h3 id="resultTitle"></h3>
+          <div id="resultMessage"></div>
+          <div id="stats" class="stats"></div>
+          <div id="repos" class="repos"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document
+        .getElementById("githubForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const username = document.getElementById("username").value;
+          const token = document.getElementById("token").value;
+          const resultDiv = document.getElementById("result");
+          const loadingDiv = document.getElementById("loading");
+          const contentDiv = document.getElementById("content");
+          const submitBtn = document.getElementById("submitBtn");
+
+          // Show loading
+          resultDiv.style.display = "block";
+          loadingDiv.style.display = "block";
+          contentDiv.style.display = "none";
+          submitBtn.disabled = true;
+          submitBtn.textContent = "⏳ Fetching...";
+
+          try {
+            const response = await fetch(
+              "http://localhost:5001/api/github/test-real-data",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  githubUsername: username,
+                  githubToken: token,
+                }),
+              }
+            );
+
+            const data = await response.json();
+
+            // Hide loading
+            loadingDiv.style.display = "none";
+            contentDiv.style.display = "block";
+
+            if (data.success) {
+              resultDiv.className = "result success";
+              document.getElementById("resultTitle").textContent =
+                "✅ Success! Here are your real GitHub stats:";
+              document.getElementById("resultMessage").innerHTML = `
+                        <p><strong>👤 ${
+                          data.user.name || data.user.username
+                        }</strong> (@${data.user.username})</p>
+                    `;
+
+              // Show stats
+              const statsDiv = document.getElementById("stats");
+              statsDiv.innerHTML = `
+                        <div class="stat-card">
+                            <div class="stat-number">${data.user.publicRepos}</div>
+                            <div class="stat-label">Public Repositories</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${data.user.totalStars}</div>
+                            <div class="stat-label">Total Stars</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${data.user.totalForks}</div>
+                            <div class="stat-label">Total Forks</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${data.user.followers}</div>
+                            <div class="stat-label">Followers</div>
+                        </div>
+                    `;
+
+              // Show top repositories
+              const reposDiv = document.getElementById("repos");
+              const topRepos = data.repositories
+                .sort((a, b) => b.stars - a.stars)
+                .slice(0, 5);
+
+              reposDiv.innerHTML = `
+                        <h4>📚 Top Repositories:</h4>
+                        ${topRepos
+                          .map(
+                            (repo) => `
+                            <div class="repo-item">
+                                <span><strong>${repo.name}</strong> (${
+                              repo.language || "No language"
+                            })</span>
+                                <span>${repo.stars} ⭐ ${repo.forks} 🍴</span>
+                            </div>
+                        `
+                          )
+                          .join("")}
+                    `;
+            } else {
+              resultDiv.className = "result error";
+              document.getElementById("resultTitle").textContent = "❌ Error";
+              document.getElementById("resultMessage").textContent =
+                data.error || "Failed to fetch GitHub data";
+            }
+          } catch (error) {
+            loadingDiv.style.display = "none";
+            contentDiv.style.display = "block";
+            resultDiv.className = "result error";
+            document.getElementById("resultTitle").textContent = "💥 Error";
+            document.getElementById("resultMessage").textContent =
+              error.message;
+          }
+
+          // Re-enable button
+          submitBtn.disabled = false;
+          submitBtn.textContent = "🚀 Fetch My Real GitHub Data";
+        });
+    </script>
+  </body>
+</html>
