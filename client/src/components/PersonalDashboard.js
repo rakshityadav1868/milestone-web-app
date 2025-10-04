@@ -10,7 +10,6 @@ import {
   LogOut,
   Trophy,
   TrendingUp,
-  Users,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import {
@@ -50,8 +49,7 @@ const PersonalDashboard = () => {
 
     const q = query(
       collection(db, "milestones"),
-      where("userId", "==", user.uid),
-      orderBy("date", "desc")
+      where("userId", "==", user.uid)
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -66,11 +64,15 @@ const PersonalDashboard = () => {
         setTimeout(() => setShowConfetti(false), 3000);
       }
 
-      setMilestones(newMilestones);
+      // Sort milestones by created_at date (newest first)
+      const sortedMilestones = newMilestones.sort(
+        (a, b) => new Date(b.created_at) - new Date(a.created_at)
+      );
+      setMilestones(sortedMilestones);
     });
 
     return unsubscribe;
-  }, [user, milestones.length, db]);
+  }, [user, milestones.length]); // Remove db from dependencies as it's a stable reference
 
   const getMilestoneIcon = (type) => {
     const icons = {
@@ -150,8 +152,79 @@ const PersonalDashboard = () => {
     }
   };
 
+  const createSampleMilestones = async () => {
+    try {
+      console.log("🚀 Creating sample milestones for user:", user.uid);
+      const response = await fetch(
+        `/api/github/create-sample-milestones/${user.uid}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("📡 Response status:", response.status);
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log("✅ Sample milestones created:", result);
+        // The real-time listener will automatically update the milestones
+      } else {
+        const errorData = await response.json();
+        console.error("❌ Failed to create sample milestones:", errorData);
+      }
+    } catch (error) {
+      console.error("💥 Error creating sample milestones:", error);
+    }
+  };
+
+  const fetchRealGitHubData = async () => {
+    try {
+      console.log("🚀 Fetching real GitHub data for user:", user.uid);
+      const response = await fetch(`/api/github/fetch-real-data/${user.uid}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      console.log("📡 Response status:", response.status);
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log("✅ Real GitHub data fetched:", result);
+        // The real-time listener will automatically update the milestones
+      } else {
+        const errorData = await response.json();
+        console.error("❌ Failed to fetch real GitHub data:", errorData);
+      }
+    } catch (error) {
+      console.error("💥 Error fetching real GitHub data:", error);
+    }
+  };
+
+  // Debug authentication state
+  console.log("🔍 Auth state:", {
+    user: !!user,
+    userProfile: !!userProfile,
+    userUid: user?.uid,
+  });
+
   if (!user || !userProfile) {
-    return null;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-blue-900 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+            Loading your dashboard...
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400">
+            {!user ? "Please sign in with GitHub" : "Loading your profile..."}
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -191,6 +264,28 @@ const PersonalDashboard = () => {
             </div>
 
             <div className="flex items-center space-x-4">
+              {milestones.length === 0 && (
+                <>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={fetchRealGitHubData}
+                    className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
+                  >
+                    <Star className="h-4 w-4" />
+                    <span>Fetch Real GitHub Data</span>
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={createSampleMilestones}
+                    className="flex items-center space-x-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200"
+                  >
+                    <Trophy className="h-4 w-4" />
+                    <span>Create Sample Data</span>
+                  </motion.button>
+                </>
+              )}
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -226,7 +321,7 @@ const PersonalDashboard = () => {
               value: milestones.filter((m) => {
                 const monthAgo = new Date();
                 monthAgo.setMonth(monthAgo.getMonth() - 1);
-                return new Date(m.date) > monthAgo;
+                return new Date(m.created_at) > monthAgo;
               }).length,
               icon: TrendingUp,
               color: "text-green-600",
@@ -293,9 +388,31 @@ const PersonalDashboard = () => {
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
                   No milestones yet
                 </h3>
-                <p className="text-gray-600 dark:text-gray-400">
-                  Start contributing to see your achievements here!
+                <p className="text-gray-600 dark:text-gray-400 mb-4">
+                  Start contributing to see your achievements here! Or fetch
+                  your real GitHub data or create sample data to see how the
+                  dashboard works.
                 </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={fetchRealGitHubData}
+                    className="inline-flex items-center space-x-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
+                  >
+                    <Star className="h-5 w-5" />
+                    <span>Fetch Real GitHub Data</span>
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={createSampleMilestones}
+                    className="inline-flex items-center space-x-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200"
+                  >
+                    <Trophy className="h-5 w-5" />
+                    <span>Create Sample Data</span>
+                  </motion.button>
+                </div>
               </motion.div>
             ) : (
               <div className="space-y-4">
@@ -326,14 +443,13 @@ const PersonalDashboard = () => {
                               reached!
                             </h3>
                             <p className="text-sm text-gray-600 dark:text-gray-400">
-                              {new Date(milestone.date).toLocaleDateString(
-                                "en-US",
-                                {
-                                  year: "numeric",
-                                  month: "long",
-                                  day: "numeric",
-                                }
-                              )}
+                              {new Date(
+                                milestone.created_at
+                              ).toLocaleDateString("en-US", {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              })}
                             </p>
                           </div>
                         </div>
