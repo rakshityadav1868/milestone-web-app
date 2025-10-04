@@ -1,11 +1,12 @@
 import { GithubAuthProvider } from "firebase/auth";
-import React, { createContext, useContext, useEffect, useState } from "react";
-import {
-  signInWithPopup,
-  signOut,
-  onAuthStateChanged,
-  User,
-} from "firebase/auth";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
+import { signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { auth, githubProvider, db } from "../config/firebase";
 
@@ -32,7 +33,9 @@ export const AuthProvider = ({ children }) => {
     if (!isFirebaseConfigured) {
       console.warn("Firebase not configured - cannot sign in");
       // Show user-friendly error message
-      alert("Firebase authentication is not configured. Please set up your Firebase credentials to use this feature. Check the FIREBASE_SETUP.md file for instructions.");
+      alert(
+        "Firebase authentication is not configured. Please set up your Firebase credentials to use this feature. Check the FIREBASE_SETUP.md file for instructions."
+      );
       throw new Error("Firebase authentication not configured");
     }
 
@@ -83,22 +86,25 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Get user profile from Firestore
-  const getUserProfile = async (uid) => {
-    if (!isFirebaseConfigured) {
-      return null;
-    }
-
-    try {
-      const userDoc = await getDoc(doc(db, "users", uid));
-      if (userDoc.exists()) {
-        return userDoc.data();
+  const getUserProfile = useCallback(
+    async (uid) => {
+      if (!isFirebaseConfigured) {
+        return null;
       }
-      return null;
-    } catch (error) {
-      console.error("Error getting user profile:", error);
-      return null;
-    }
-  };
+
+      try {
+        const userDoc = await getDoc(doc(db, "users", uid));
+        if (userDoc.exists()) {
+          return userDoc.data();
+        }
+        return null;
+      } catch (error) {
+        console.error("Error getting user profile:", error);
+        return null;
+      }
+    },
+    [isFirebaseConfigured]
+  );
 
   useEffect(() => {
     if (!isFirebaseConfigured) {
@@ -120,7 +126,7 @@ export const AuthProvider = ({ children }) => {
     });
 
     return unsubscribe;
-  }, [isFirebaseConfigured]);
+  }, [isFirebaseConfigured, getUserProfile]);
 
   const value = {
     user,
